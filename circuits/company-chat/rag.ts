@@ -7,6 +7,7 @@ import {
   EaCCompoundDocumentLoaderDetails,
   EaCDenoKVIndexerDetails,
   EaCDenoKVSaverPersistenceDetails,
+  EaCDFSDocumentLoaderDetails,
   EaCGraphCircuitDetails,
   lastAiNotHumanMessages,
 } from '@fathym/synaptic';
@@ -25,6 +26,7 @@ export const Configure: CircuitConfiguration<'Graph'> = (
   ctx: CircuitContext
 ) => {
   const AIHuntersCompanyInfoUrls = loadCompanyInfoUrls();
+  const AIHuntersCompanyInfoPdfs = loadCompanyInfoPdfs();
 
   return {
     AIaC: {
@@ -50,14 +52,25 @@ export const Configure: CircuitConfiguration<'Graph'> = (
 
           return acc;
         }, {} as Record<string, { Details: EaCCheerioWebDocumentLoaderDetails }>),
+
+        ["pdf-loader"]: {
+          Details: {
+            Type: 'DFSDocument',
+            DFSLookup: "local:document-store",
+            Documents: AIHuntersCompanyInfoPdfs,
+          } as EaCDFSDocumentLoaderDetails,
+        },
+
         ['company-chat']: {
           Details: {
             Type: 'CompoundDocument',
-            LoaderLookups: AIHuntersCompanyInfoUrls.map((url) =>
-              ctx.AIaCLookup(url)
-            ),
+            LoaderLookups: [
+              ...AIHuntersCompanyInfoUrls.map((url) => ctx.AIaCLookup(url)),
+              ctx.AIaCLookup("pdf-loader")
+            ]
           } as EaCCompoundDocumentLoaderDetails,
         },
+
       },
       Persistence: {
         'company-chat': {
@@ -193,5 +206,12 @@ function loadCompanyInfoUrls() {
     'https://cognitivemill.com/about/',
     'https://klipmeapp.com/',
     'https://klipmeapp.com/how-it-works',
+  ];
+}
+
+function loadCompanyInfoPdfs() {
+  return [
+    'testmill.pdf',
+    'testclick.pdf',
   ];
 }
