@@ -1,0 +1,87 @@
+{
+  "name": "@ai-hunters/synaptic-runtime",
+  "version": "0.0.0",
+  "exports": {
+    ".": "./main.ts",
+    "./dev": "./dev.ts"
+  },
+  "tasks": {
+    "build": "deno task build:fmt && deno task build:lint && deno task publish:check && deno task test",
+    "build:dev": "deno run -A dev.ts build",
+    "build:docker": "docker build --no-cache -t ai-hunters-synaptic-runtime -f DOCKERFILE .",
+    "build:fmt": "deno fmt",
+    "build:lint": "deno lint",
+    "build:main": "deno run -A main.ts build",
+    "check": "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx",
+    "clean:docker": "docker stop ai-hunters-synaptic-runtime || true && docker rm ai-hunters-synaptic-runtime || true",
+    "deploy": "npx rimraf cov && deno task build && deno task test && npx ftm git",
+    "deploy:docker": "docker run --name ai-hunters-synaptic-runtime --network eac-runtimes --env-file .env.docker -dp 127.0.0.1:8103:8103 ai-hunters-synaptic-runtime",
+    "dev": "deno run -A --watch=apps/,configs/,data/,routes/,src/,static/ dev.ts",
+    "network:docker": "docker network create eac-runtimes || true",
+    "publish:check": "deno publish --dry-run --allow-dirty",
+    "refresh:docker": "npx rimraf cov && deno task build:docker && deno task network:docker && deno task clean:docker && deno task deploy:docker",
+    "start": "deno run -A main.ts",
+    "test": "npx rimraf cov && deno test -A tests/tests.ts --coverage=cov",
+    "version": "deno run -A jsr:@fathym/common@0/build/version"
+  },
+  "imports": {
+    "@ai-hunters/common": "jsr:@ai-hunters/common@0.0.6",
+    "@fathym/common": "jsr:@fathym/common@0.2.160",
+    "@fathym/eac": "jsr:@fathym/eac@0.1.71",
+    "@fathym/eac-runtime": "jsr:@fathym/eac-runtime@0.1.45",
+    "@fathym/ioc": "jsr:@fathym/ioc@0.0.12",
+    "@fathym/synaptic": "jsr:@fathym/synaptic@0.0.180",
+    "html-to-text": "npm:html-to-text@9.0.5",
+    "@langchain/community": "npm:@langchain/community@0.3.0",
+    "@langchain/core": "npm:@langchain/core@0.3.1",
+    "@langchain/langgraph": "npm:@langchain/langgraph@0.2.3",
+    "pdf-parse": "npm:pdf-parse@1.1.1",
+    "preact": "npm:preact@10.20.1",
+    "@std/log": "jsr:@std/log@0.224.6",
+    "zod": "npm:zod"
+  },
+  "exclude": [
+    "**/_eac-runtime/*"
+  ],
+  "lint": {
+    "include": [
+      "apps/",
+      "configs/",
+      "src/",
+      "tests/"
+    ],
+    "exclude": [],
+    "rules": {
+      "tags": [
+        "recommended"
+      ],
+      "include": [
+        "ban-untagged-todo"
+      ],
+      "exclude": []
+    }
+  },
+  "fmt": {
+    "include": [
+      "apps/",
+      "configs/",
+      "src/",
+      "tests/"
+    ],
+    "exclude": [],
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "proseWrap": "preserve",
+    "semiColons": true,
+    "singleQuote": true,
+    "useTabs": false
+  },
+  "unstable": [
+    "kv"
+  ],
+  "lock": false,
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  }
+}
