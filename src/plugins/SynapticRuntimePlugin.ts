@@ -108,6 +108,13 @@ export default class SynapticRuntimePlugin implements EaCRuntimePlugin {
           },
         },
         DFSs: {
+          'local:document-store': {
+            Details: {
+              Type: 'Local',
+              FileRoot: './store/',
+              Extensions: [".pdf"],
+            } as EaCLocalDistributedFileSystemDetails,
+          },
           'local:circuits': {
             Details: {
               Type: 'Local',
